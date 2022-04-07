@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:findatoilet/location/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -91,7 +92,12 @@ class _LocationState extends State<Location> {
                   onChanged: (value) {
                     print(value);
                   },)),
-            IconButton(onPressed: () {}, icon: Icon(Icons.search))
+            IconButton(
+                onPressed: () async{
+                  var city = await LocationService().getPlace(_searchcontroller.text);
+                  _goToTheCity(city);
+                },
+                icon: Icon(Icons.search))
           ],),
           Expanded(
             child: GoogleMap(
@@ -102,7 +108,7 @@ class _LocationState extends State<Location> {
               // polylines: {
               //   _polyline,
               // },
-              markers: {_kGooglePlexMarker, _kToiletMarker},
+              markers: {_kGooglePlexMarker},
               initialCameraPosition: _kGooglePlex,
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
@@ -119,6 +125,18 @@ class _LocationState extends State<Location> {
     );
   }
 
+  // to change the camera to the city selected
+
+  Future<void> _goToTheCity(Map<String, dynamic> place) async {
+    final double lat = place["geometry"]["location"]["lat"];
+    final double lng = place["geometry"]["location"]["lng"];
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(
+      CameraPosition(target: LatLng(lat, lng), zoom: 12),
+    ));
+  }
+
+  // this allows the floating action button to take you to the lake
   Future<void> _goToTheLake() async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
