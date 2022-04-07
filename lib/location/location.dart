@@ -19,11 +19,51 @@ class _LocationState extends State<Location> {
     zoom: 14.4746,
   );
 
+  // adding a marker object
+  static final Marker _kGooglePlexMarker = Marker(
+    markerId: MarkerId("_kGooglePlex"),
+    infoWindow: InfoWindow(title: "Your Location"),
+    icon: BitmapDescriptor.defaultMarker,
+    position: LatLng(37.42796133580664, -122.085749655962),
+  );
+
   static final CameraPosition _kLake = CameraPosition(
       bearing: 192.8334901395799,
       target: LatLng(37.43296265331129, -122.08832357078792),
       tilt: 59.440717697143555,
       zoom: 19.151926040649414);
+
+  static final Marker _kToiletMarker = Marker(
+    markerId: MarkerId("_kToilet"),
+    infoWindow: InfoWindow(title: "Toilet Location"),
+    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+    position: LatLng(37.43296265331129, -122.08832357078792),
+  );
+
+  // creating a polyline to link the two markers
+  static final Polyline _polyline = Polyline(polylineId: PolylineId("_polyline"),
+    // create a list of points where the line o fthe Polyline would pass
+    points: [
+      LatLng(37.43296265331129, -122.08832357078792),
+      LatLng(37.42796133580664, -122.085749655962),
+    ],
+    width: 3,
+  );
+
+  // creating a polygon object with Polygon
+  static final Polygon _polygon = Polygon(polygonId: PolygonId("_polygon"),
+    points: [
+      LatLng(37.43296265331129, -122.08832357078792),
+      LatLng(37.42796133580664, -122.085749655962),
+      LatLng(37.438, -122.092),
+      LatLng(37.450, -122.089)
+    ],
+    strokeWidth: 3,
+    fillColor: Colors.transparent,
+  );
+
+  // creating a controller for the form field
+  TextEditingController _searchcontroller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -31,26 +71,50 @@ class _LocationState extends State<Location> {
       appBar: AppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: const [
             Icon(Icons.location_on),
             SizedBox(
               width: 20,
             ),
-            Text("Find Location of Toilet")
+            Text("Find a Toilet")
           ],
         ),
       ),
-      body: GoogleMap(
-        mapType: MapType.hybrid,
-        initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
+      body: Column(
+        children: [
+          Row(children: [
+            Expanded(
+                child: TextFormField(
+                  controller: _searchcontroller,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(hintText: "Search Toilet"),
+                  onChanged: (value) {
+                    print(value);
+                  },)),
+            IconButton(onPressed: () {}, icon: Icon(Icons.search))
+          ],),
+          Expanded(
+            child: GoogleMap(
+              mapType: MapType.normal,
+              // polygons: {
+              //   _polygon,
+              // },
+              // polylines: {
+              //   _polyline,
+              // },
+              markers: {_kGooglePlexMarker, _kToiletMarker},
+              initialCameraPosition: _kGooglePlex,
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _goToTheLake,
-        label: Text('To the lake!'),
-        icon: Icon(Icons.directions_boat),
+        label: const Text('Find Location'),
+        icon: const Icon(Icons.location_on_outlined),
       ),
     );
   }

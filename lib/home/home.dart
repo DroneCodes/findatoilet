@@ -23,7 +23,8 @@ class _HomeState extends State<Home> {
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.white70,
         currentIndex: currentindex,
-        showUnselectedLabels: true,
+        showUnselectedLabels: false,
+        showSelectedLabels: false,
         onTap: (index) => setState(() => currentindex = index),
         items: [
         BottomNavigationBarItem(
